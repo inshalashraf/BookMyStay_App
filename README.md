@@ -51,6 +51,14 @@ The project uses three simple responsibilities:
 
 This makes the project useful as a small Java/OOP learning example and a base for future booking features.
 
+## Testing Checklist
+
+Before extending the application, verify:
+- A reservation is added with the expected guest and room details.
+- Multiple reservations appear in the generated history.
+- The report total matches the number of stored reservations.
+- Empty booking history is handled without crashing.
+
 ## Future Improvements
 
 - Unique booking IDs
