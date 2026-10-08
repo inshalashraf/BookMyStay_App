@@ -68,3 +68,6 @@ Before extending the application, verify:
 - File/database persistence
 - Automated tests
 - Console menu or web interface
+## Validation Notes
+
+Booking workflows should validate required guest and room details before storing a reservation. Keeping validation close to the booking workflow makes later persistence and UI changes easier to manage.
