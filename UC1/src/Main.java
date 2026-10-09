@@ -1,37 +1,50 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class Reservation8 {
-    private String guestName;
-    private String roomType;
-    private String roomId;
+    private final String guestName;
+    private final String roomType;
+    private final String roomId;
 
     public Reservation8(String guestName, String roomType, String roomId) {
-        this.guestName = guestName;
-        this.roomType  = roomType;
-        this.roomId    = roomId;
+        if (guestName == null || guestName.isBlank()
+                || roomType == null || roomType.isBlank()
+                || roomId == null || roomId.isBlank()) {
+            throw new IllegalArgumentException("Guest name, room type, and room ID are required.");
+        }
+        this.guestName = guestName.trim();
+        this.roomType = roomType.trim();
+        this.roomId = roomId.trim();
     }
 
     public String getGuestName() { return guestName; }
-    public String getRoomType()  { return roomType; }
-    public String getRoomId()    { return roomId; }
+    public String getRoomType() { return roomType; }
+    public String getRoomId() { return roomId; }
 }
 
 class BookingHistory {
-    private List<Reservation8> confirmedReservations;
+    private final List<Reservation8> confirmedReservations = new ArrayList<>();
 
-    public BookingHistory() { confirmedReservations = new ArrayList<>(); }
+    public void addReservation(Reservation8 reservation) {
+        if (reservation == null) {
+            throw new IllegalArgumentException("Reservation cannot be null.");
+        }
+        confirmedReservations.add(reservation);
+    }
 
-    public void addReservation(Reservation8 reservation) { confirmedReservations.add(reservation); }
-
-    public List<Reservation8> getConfirmedReservations() { return confirmedReservations; }
+    public List<Reservation8> getConfirmedReservations() {
+        return Collections.unmodifiableList(confirmedReservations);
+    }
 }
 
 class BookingReportService {
     public void generateReport(BookingHistory history) {
+        if (history == null) {
+            throw new IllegalArgumentException("Booking history cannot be null.");
+        }
 
         List<Reservation8> reservations = history.getConfirmedReservations();
-
         System.out.println("============================================================");
         System.out.println("       Book My Stay - Booking History Report");
         System.out.println("============================================================");
@@ -55,15 +68,13 @@ class BookingReportService {
 
 public class Main {
     public static void main(String[] args) {
-
         BookingHistory history = new BookingHistory();
 
         history.addReservation(new Reservation8("Alice", "Single", "S-101"));
-        history.addReservation(new Reservation8("Bob",   "Double", "D-101"));
-        history.addReservation(new Reservation8("Carol", "Suite",  "S-101"));
+        history.addReservation(new Reservation8("Bob", "Double", "D-101"));
+        history.addReservation(new Reservation8("Carol", "Suite", "SU-101"));
         history.addReservation(new Reservation8("David", "Single", "S-102"));
 
-        BookingReportService reportService = new BookingReportService();
-        reportService.generateReport(history);
+        new BookingReportService().generateReport(history);
     }
 }
