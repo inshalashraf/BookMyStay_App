@@ -1,73 +1,63 @@
 # BookMyStay App
 
-A Java console application demonstrating hotel reservation history and report generation.
+A Java console application for hotel reservation history and booking management.
 
 ## Features
-
-- Stores confirmed reservations in memory
-- Captures guest name, room type, and room ID
-- Generates a formatted booking-history report
-- Demonstrates separation between booking data and reporting logic
+- Create bookings with a unique reservation ID, guest name, and room type
+- Validate required booking details and reject duplicate IDs
+- Check room availability before confirming a booking
+- Cancel bookings and restore room inventory
+- View confirmed bookings, available rooms, and cancellation history
+- Automated regression tests with GitHub Actions
 
 ## Tech Stack
-
-- Java
+- Java 17
 - Java Collections Framework
-- IntelliJ IDEA project structure
+- Dependency-free Java test runner
+- GitHub Actions
 
 ## Project Structure
-
 ```text
 BookMyStay_App/
 ├── UC1/
-│   └── src/
-│       └── Main.java
-├── .gitignore
-└── README.md
+│   ├── src/
+│   │   ├── Main.java
+│   │   ├── BookingWorkflowExtensions.java
+│   │   └── BookingConsole.java
+│   └── test/
+│       └── BookingWorkflowTest.java
+└── .github/workflows/java-tests.yml
 ```
 
-> `out/` and IDE metadata are generated project files and are excluded through `.gitignore`.
-
-## Run
-
-From `UC1/src`:
-
+## Run the original booking-history report
 ```bash
-javac Main.java
-java Main
+javac UC1/src/Main.java
+java -cp UC1/src Main
 ```
 
-## Example
+## Run the interactive booking application
+From the repository root:
+```bash
+mkdir -p build
+javac -d build UC1/src/*.java
+java -cp build BookingConsole
+```
 
-The application creates sample reservations for multiple room types and prints a booking-history report containing the total number of confirmed bookings and their details.
+## Run tests
+```bash
+mkdir -p build
+javac -d build UC1/src/*.java UC1/test/*.java
+java -cp build BookingWorkflowTest
+```
 
-## Design Notes
+GitHub Actions runs the compile and test commands on pushes and pull requests targeting `main`.
 
-The project uses three simple responsibilities:
+## Design
+- `BookingRequest` validates the reservation ID, guest name, and room type.
+- `RoomInventory` tracks available rooms and synchronizes room reservation/release.
+- `BookingService` confirms bookings, prevents duplicate IDs, and handles cancellation.
+- `BookingQueue` is a FIFO structure for pending requests.
+- `BookingConsole` provides the interactive command-line interface.
 
-- `Reservation8` — represents reservation data.
-- `BookingHistory` — stores confirmed reservations.
-- `BookingReportService` — generates the console report.
-
-This makes the project useful as a small Java/OOP learning example and a base for future booking features.
-
-## Testing Checklist
-
-Before extending the application, verify:
-- A reservation is added with the expected guest and room details.
-- Multiple reservations appear in the generated history.
-- The report total matches the number of stored reservations.
-- Empty booking history is handled without crashing.
-
-## Future Improvements
-
-- Unique booking IDs
-- Room availability checks
-- Booking and cancellation workflows
-- Input validation
-- File/database persistence
-- Automated tests
-- Console menu or web interface
-## Validation Notes
-
-Booking workflows should validate required guest and room details before storing a reservation. Keeping validation close to the booking workflow makes later persistence and UI changes easier to manage.
+## Scope and limitations
+This is an educational in-memory application. Bookings reset when the program exits. Dates, pricing, customer accounts, database persistence, and a graphical/web interface are not included yet.
