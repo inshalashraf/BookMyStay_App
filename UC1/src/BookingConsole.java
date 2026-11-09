@@ -1,9 +1,13 @@
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-/** Interactive console for creating and managing hotel reservations. */
+/** Interactive console for creating and managing persistent hotel reservations. */
 public class BookingConsole {
+    private static final Path BOOKING_FILE = Path.of("data", "bookings.csv");
+
     public static void main(String[] args) {
         Map<String, Integer> initialRooms = new LinkedHashMap<>();
         initialRooms.put("Single", 5);
@@ -14,6 +18,16 @@ public class BookingConsole {
                 new BookingWorkflowExtensions.RoomInventory(initialRooms);
         BookingWorkflowExtensions.BookingService service =
                 new BookingWorkflowExtensions.BookingService(inventory);
+
+        try {
+            for (BookingWorkflowExtensions.BookingRequest booking : BookingFileStore.load(BOOKING_FILE)) {
+                service.confirm(booking);
+            }
+            System.out.println("Loaded " + service.confirmedBookings().size() + " saved booking(s).");
+        } catch (IOException | BookingWorkflowExtensions.BookingException ex) {
+            System.err.println("Could not load saved bookings: " + ex.getMessage());
+            return;
+        }
 
         try (Scanner input = new Scanner(System.in)) {
             boolean running = true;
@@ -33,12 +47,14 @@ public class BookingConsole {
                             System.out.print("Room type (Single/Double/Suite): ");
                             String room = input.nextLine();
                             service.confirm(new BookingWorkflowExtensions.BookingRequest(id, guest, room));
-                            System.out.println("Booking confirmed successfully.");
+                            saveBookings(service);
+                            System.out.println("Booking confirmed and saved successfully.");
                             break;
                         case "2":
                             System.out.print("Reservation ID: ");
                             service.cancel(input.nextLine());
-                            System.out.println("Booking cancelled; room returned to inventory.");
+                            saveBookings(service);
+                            System.out.println("Booking cancelled and saved; room returned to inventory.");
                             break;
                         case "3":
                             if (service.confirmedBookings().isEmpty()) {
@@ -62,8 +78,14 @@ public class BookingConsole {
                     }
                 } catch (BookingWorkflowExtensions.BookingException | IllegalArgumentException ex) {
                     System.out.println("Booking error: " + ex.getMessage());
+                } catch (IOException ex) {
+                    System.out.println("Could not save bookings: " + ex.getMessage());
                 }
             }
         }
+    }
+
+    private static void saveBookings(BookingWorkflowExtensions.BookingService service) throws IOException {
+        BookingFileStore.save(BOOKING_FILE, service.confirmedBookings());
     }
 }
