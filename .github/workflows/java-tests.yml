@@ -19,3 +19,5 @@ jobs:
         run: javac -d build UC1/src/*.java UC1/test/*.java
       - name: Run booking workflow tests
         run: java -cp build BookingWorkflowTest
+      - name: Run booking persistence tests
+        run: java -cp build BookingFileStoreTest
